@@ -1,29 +1,52 @@
-class Solution:
-    def tsp(self, cost):
-        n = len(cost)
-        INF = float('inf')
-        
-        # Fix 1: dp[mask][city] - correct dimensions
-        dp = [[INF] * n for _ in range(1 << n)]
-        dp[1][0] = 0  # mask=1 (city 0 visited), ending at city 0
-        
-        full_mask = (1 << n) - 1
-        
-        # Fix 2: Proper iteration order (smaller masks first)
-        for mask in range(1 << n):
-            for u in range(n):
-                if (mask & (1 << u)) == 0 or dp[mask][u] == INF:
-                    continue
-                for v in range(n):
-                    if mask & (1 << v):
-                        continue  # already visited
-                    next_mask = mask | (1 << v)
-                    dp[next_mask][v] = min(dp[next_mask][v], dp[mask][u] + cost[u][v])
-        
-        # Find minimum cost to return to city 0
-        ans = INF
-        for u in range(1, n):
-            if dp[full_mask][u] != INF:
-                ans = min(ans, dp[full_mask][u] + cost[u][0])
-        
-        return int(ans) if ans != INF else -1
+#include <stdio.h>
+#include <string.h>
+
+#define EMPTY -1
+
+int main() {
+    int m, n;
+    scanf("%d %d", &m, &n);
+
+    int table[m];
+    for (int i = 0; i < m; i++) {
+        table[i] = EMPTY;
+    }
+
+    for (int q = 0; q < n; q++) {
+        char op[10];
+        int key;
+        scanf("%s %d", op, &key);
+
+        if (strcmp(op, "INSERT") == 0) {
+            int base = key % m;
+            int inserted = 0;
+            for (int i = 0; i < m; i++) {
+                int pos = (base + i * i) % m;
+                if (table[pos] == EMPTY) {
+                    table[pos] = key;
+                    inserted = 1;
+                    break;
+                }
+            }
+            // If table is full, insertion silently fails
+        } 
+        else if (strcmp(op, "SEARCH") == 0) {
+            int base = key % m;
+            int found = 0;
+            for (int i = 0; i < m; i++) {
+                int pos = (base + i * i) % m;
+                if (table[pos] == key) {
+                    found = 1;
+                    break;
+                }
+                if (table[pos] == EMPTY) {
+                    break; // stop early if empty slot encountered
+                }
+            }
+            if (found) printf("FOUND\n");
+            else printf("NOT FOUND\n");
+        }
+    }
+
+    return 0;
+}
